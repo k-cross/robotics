@@ -15,10 +15,9 @@
     channel = "stable";
   };
 
-  shell.zsh.enable = true;
-
   # Use conda for conda environment management
   packages = with pkgs; [
+    zsh
     pixi
   ];
 
@@ -26,9 +25,13 @@
     # Set pixi cache location
     PIXI_CACHE_DIR = "${config.env.DEVENV_STATE}/pixi/cache";
     ROS_DOMAIN_ID = 1;
+    STARSHIP_CONFIG = "$HOME/.config/starship_devenv.toml";
   };
 
   scripts.initialize_environment.exec = ''
+    # Increase file descriptor limit for pixi
+    ulimit -n 20000
+
     # Install dependencies
     pixi config set --local run-post-link-scripts insecure
     pixi install
@@ -37,11 +40,11 @@
     pixi shell -e kilted
 
     # Source pixi environment
-    eval "$(pixi shell-hook)"
+    eval "$(pixi shell-hook --shell zsh)"
 
     # Source ROS2 setup if available
-    if [ -f ".pixi/envs/default/setup.zsh" ]; then
-      source .pixi/envs/default/setup.zsh
+    if [ -f ".pixi/envs/kilted/setup.sh" ]; then
+      source .pixi/envs/kilted/setup.sh
       echo "ROS2 environment ready! ROS_DISTRO: $ROS_DISTRO"
     fi
   '';
@@ -59,10 +62,6 @@
     channels = ["https://prefix.dev/conda-forge"]
     platforms = ["osx-arm64", "linux-64", "linux-aarch64"]
 
-    [target.unix.activation]
-    # For activation scripts, we use zsh for Unix-like systems
-    scripts = ["/setup.zsh"]
-
     [feature.build.target.unix.tasks]
     build = "colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
 
@@ -78,8 +77,6 @@
     # ROS specific tools
     rosdep = "*"
     colcon-common-extensions = "*"
-    # Simulation
-    gazebo = "*"
 
     [target.linux.dependencies]
     libgl-devel = "*"
@@ -92,30 +89,33 @@
 
     [feature.kilted.dependencies]
     ros-kilted-desktop = "*"
+
+    [activation]
+    scripts = [".pixi/envs/kilted/setup.sh"]
     EOF
 
       echo "Created pixi.toml configuration"
   '';
 
   enterShell = ''
-    # Increase file descriptor limit for pixi
-    ulimit -n 20000
+    export SHELL=$(which zsh)
+    exec $SHELL
 
     # Check if pixi.toml exists and environment is set up
     if [ -d "robostack" ]; then
       cd robostack
+      export STARSHIP_CONFIG=".pixi/envs/kilted/starship_pixi.toml";
       echo "Pixi environment detected."
-      echo "Activating pixi environment..."
+      echo "Activating ROS2 environment..."
 
-      echo "ROS2 environment ready!"
       pixi shell -e kilted
 
       # Source pixi environment
-      eval "$(pixi shell-hook)"
+      eval "$(pixi shell-hook --shell zsh)"
 
       # Source ROS2 setup if available
-      if [ -f ".pixi/envs/default/setup.zsh" ]; then
-        source .pixi/envs/default/setup.zsh
+      if [ -f ".pixi/envs/kilted/setup.sh" ]; then
+        source .pixi/envs/kilted/setup.sh
         echo "ROS2 environment ready! ROS_DISTRO: $ROS_DISTRO"
       fi
     else
