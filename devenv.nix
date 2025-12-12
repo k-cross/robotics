@@ -23,6 +23,7 @@
   env = {
     # Set pixi cache location
     PIXI_CACHE_DIR = "${config.env.DEVENV_STATE}/pixi/cache";
+    ROS_DOMAIN_ID = 1;
   };
 
   scripts.initialize_environment.exec = ''
@@ -100,8 +101,12 @@
 
     # Check if pixi.toml exists and environment is set up
     if [ -d "robostack" ]; then
+      cd robostack
       echo "Pixi environment detected."
       echo "Activating pixi environment..."
+
+      echo "ROS2 environment ready!"
+      pixi shell -e kilted
 
       # Source pixi environment
       eval "$(pixi shell-hook)"
