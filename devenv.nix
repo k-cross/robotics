@@ -15,6 +15,8 @@
     channel = "stable";
   };
 
+  shell.zsh.enable = true;
+
   # Use conda for conda environment management
   packages = with pkgs; [
     pixi
@@ -38,8 +40,8 @@
     eval "$(pixi shell-hook)"
 
     # Source ROS2 setup if available
-    if [ -f ".pixi/envs/default/setup.bash" ]; then
-      source .pixi/envs/default/setup.bash
+    if [ -f ".pixi/envs/default/setup.zsh" ]; then
+      source .pixi/envs/default/setup.zsh
       echo "ROS2 environment ready! ROS_DISTRO: $ROS_DISTRO"
     fi
   '';
@@ -58,8 +60,8 @@
     platforms = ["osx-arm64", "linux-64", "linux-aarch64"]
 
     [target.unix.activation]
-    # For activation scripts, we use bash for Unix-like systems
-    scripts = ["install/setup.bash"]
+    # For activation scripts, we use zsh for Unix-like systems
+    scripts = ["/setup.zsh"]
 
     [feature.build.target.unix.tasks]
     build = "colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
@@ -112,8 +114,8 @@
       eval "$(pixi shell-hook)"
 
       # Source ROS2 setup if available
-      if [ -f ".pixi/envs/default/setup.bash" ]; then
-        source .pixi/envs/default/setup.bash
+      if [ -f ".pixi/envs/default/setup.zsh" ]; then
+        source .pixi/envs/default/setup.zsh
         echo "ROS2 environment ready! ROS_DISTRO: $ROS_DISTRO"
       fi
     else
