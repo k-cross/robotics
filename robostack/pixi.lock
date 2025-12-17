@@ -11192,6 +11192,7 @@ packages:
   - openmp 21.1.8|21.1.8.*
   - intel-openmp <0.0a0
   license: Apache-2.0 WITH LLVM-exception
+  license_family: APACHE
   size: 285974
   timestamp: 1765964756583
 - conda: https://prefix.dev/conda-forge/osx-arm64/llvm-tools-19.1.7-h855ad52_2.conda

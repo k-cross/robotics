@@ -38,15 +38,6 @@
 
     echo "ROS2 environment ready!"
     pixi shell -e kilted
-
-    # Source pixi environment
-    eval "$(pixi shell-hook --shell zsh)"
-
-    # Source ROS2 setup if available
-    if [ -f ".pixi/envs/kilted/setup.sh" ]; then
-      source .pixi/envs/kilted/setup.sh
-      echo "ROS2 environment ready! ROS_DISTRO: $ROS_DISTRO"
-    fi
   '';
 
   scripts.setup_pixi_project.exec = ''
@@ -98,31 +89,9 @@
   '';
 
   enterShell = ''
-    export SHELL=$(which zsh)
-    exec $SHELL
-
-    # Check if pixi.toml exists and environment is set up
-    if [ -d "robostack" ]; then
-      cd robostack
-      export STARSHIP_CONFIG=".pixi/envs/kilted/starship_pixi.toml";
-      echo "Pixi environment detected."
-      echo "Activating ROS2 environment..."
-
-      pixi shell -e kilted
-
-      # Source pixi environment
-      eval "$(pixi shell-hook --shell zsh)"
-
-      # Source ROS2 setup if available
-      if [ -f ".pixi/envs/kilted/setup.sh" ]; then
-        source .pixi/envs/kilted/setup.sh
-        echo "ROS2 environment ready! ROS_DISTRO: $ROS_DISTRO"
-      fi
-    else
-      echo "Pixi environment not yet created."
-      echo "Run 'setup_pixi_project' to create the ROS2 project named 'robostack'."
-      echo "Run 'cd robostack initialize_environment' to get a working environment."
-    fi
+    cd robostack
+    echo 'To enter environment use: eval "$(pixi shell-hook --shell zsh --environment kilted)"'
+    exec zsh
   '';
 
   # Optional: Add pre-commit hooks or other devenv features
